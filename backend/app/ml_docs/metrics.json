@@ -1,0 +1,93 @@
+{
+  "buyer_risk": {
+    "score_mae": 3.0962398663326614,
+    "score_r2": 0.9787030679063438,
+    "label_accuracy_from_regressor_thresholds": 0.9228571428571428,
+    "label_macro_f1_from_regressor_thresholds": 0.9063314852788537,
+    "classifier_accuracy": 0.92,
+    "classifier_macro_f1": 0.9013946739042807,
+    "label_thresholds": {
+      "low": "<35",
+      "medium": "35-64.999",
+      "high": ">=65"
+    }
+  },
+  "project_delay": {
+    "delay_months_mae": 5.11662987038754,
+    "delay_months_r2": 0.9224704469731454,
+    "label_accuracy_from_regressor_thresholds": 0.9741935483870968,
+    "label_macro_f1_from_regressor_thresholds": 0.9745073706704884,
+    "classifier_accuracy": 0.9968,
+    "classifier_macro_f1": 0.9972,
+    "label_thresholds": {
+      "acceptable_delay": "<=6 months",
+      "low": ">6 and <=12 months",
+      "medium": ">12 and <=24 months",
+      "high": ">24 and <=60 months",
+      "critical": ">60 months"
+    }
+  },
+  "economic_data_coverage": {
+    "general_inflation_rate": {
+      "non_null_rows": 57,
+      "first_non_null_date": "2021-03-01",
+      "last_non_null_date": "2026-03-01",
+      "last_value": 50.0
+    },
+    "construction_cost_growth": {
+      "non_null_rows": 40,
+      "first_non_null_date": "2022-03-01",
+      "last_non_null_date": "2025-06-01",
+      "last_value": 70.5882
+    },
+    "usd_growth": {
+      "non_null_rows": 39,
+      "first_non_null_date": "2022-03-01",
+      "last_non_null_date": "2025-05-01",
+      "last_value": 116.2146
+    },
+    "housing_cpi_growth": {
+      "non_null_rows": 17,
+      "first_non_null_date": "2024-05-01",
+      "last_non_null_date": "2025-09-01",
+      "last_value": 36.0539
+    },
+    "housing_growth_rate": {
+      "non_null_rows": 5,
+      "first_non_null_date": "2024-04-01",
+      "last_non_null_date": "2024-08-01",
+      "last_value": 16.8
+    },
+    "avg_price_per_sqm_million_irr": {
+      "non_null_rows": 5,
+      "first_non_null_date": "2024-04-01",
+      "last_non_null_date": "2024-08-01",
+      "last_value": 885.0
+    }
+  },
+  "data_shapes": {
+    "buyer_risk_dataset.csv": [
+      1400,
+      28
+    ],
+    "construction_delay_dataset.csv": [
+      1240,
+      15
+    ],
+    "economic_indicators.csv": [
+      62,
+      21
+    ]
+  },
+  "data_provenance": {
+    "economic_indicators.csv": "real_world_macro_indicator_data",
+    "buyer_risk_dataset.csv": "synthetic_fabricated_scenario_data",
+    "construction_delay_dataset.csv": "synthetic_fabricated_scenario_data",
+    "tehran_properties.xlsx": "provided_historical_property_listing_data; use as descriptive/dropdown support unless provenance is defended separately"
+  },
+  "metric_interpretation": {
+    "buyer_risk": "Validation metrics reflect consistency on synthetic scenario data, not externally verified real-world predictive accuracy.",
+    "project_delay": "Validation metrics reflect consistency on synthetic scenario data, not externally verified real-world predictive accuracy.",
+    "economic_forecast": "Based on real macro indicator data but should be interpreted cautiously because several fields are sparse or stale."
+  }
+}

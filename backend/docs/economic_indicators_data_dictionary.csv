@@ -1,0 +1,17 @@
+﻿column,description
+general_inflation_rate,YoY inflation rate (%) manually extracted from TradingEconomics Inflation Rate chart
+cpi_index,General CPI index manually extracted from TradingEconomics CPI chart
+cpi_yoy_growth_from_index,Calculated YoY growth from cpi_index
+housing_cpi_index,Housing & Utilities CPI index manually extracted from TradingEconomics
+housing_cpi_growth,Calculated YoY growth from housing_cpi_index
+producer_price_index,"Quarterly Producer Price Index manually extracted from TradingEconomics, forward-filled monthly"
+producer_price_yoy_growth,Calculated YoY growth from producer_price_index
+construction_cost_growth,Proxy: same as producer_price_yoy_growth
+interest_rate,Policy/interest rate (%) manually extracted from TradingEconomics
+usd_rate_toman,Free-market USD/Toman monthly average from user-entered TGJU weekly chart values
+usd_rate_irr,usd_rate_toman multiplied by 10
+usd_growth,Calculated YoY growth from usd_rate_toman
+transaction_volume,Tehran apartment transactions from verified CBI PDF audit where available
+transaction_volume_growth,YoY transaction growth from verified CBI PDF audit where available
+avg_price_per_sqm_million_irr,"Tehran average apartment sale price per square meter, million IRR, verified CBI PDF audit where available"
+housing_growth_rate,YoY growth in Tehran average sale price per sqm from verified CBI PDF audit where available

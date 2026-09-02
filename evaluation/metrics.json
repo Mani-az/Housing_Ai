@@ -1,0 +1,823 @@
+{
+  "evaluation_policy": {
+    "buyer_and_delay": "5-fold stratified CV plus untouched fixed hold-out matching stored artifacts",
+    "economic": "chronological rolling-origin backtest at 1, 3, 6 and 12 months",
+    "provenance_warning": "Buyer-risk and project-delay scores are synthetic-scenario consistency metrics, not verified real-world accuracy.",
+    "runtime_comparison": "The current_runtime/improved_runtime fields are retained for historical comparison; the canonical shipped runtime is the improved_runtime policy. Use evaluate_models.py without --improved-backend for a single canonical result."
+  },
+  "buyer_risk": {
+    "dataset": {
+      "rows": 1400,
+      "provenance": "synthetic_scenario_data",
+      "label_distribution": {
+        "low": 788,
+        "medium": 348,
+        "high": 264
+      }
+    },
+    "five_fold_cross_validation": {
+      "regressor": {
+        "mae": 3.173243,
+        "rmse": 4.400881,
+        "r2": 0.97528
+      },
+      "regressor_threshold_labels": {
+        "accuracy": 0.913571,
+        "balanced_accuracy": 0.893216,
+        "macro_f1": 0.893385,
+        "confusion_matrix": [
+          [
+            755,
+            33,
+            0
+          ],
+          [
+            33,
+            288,
+            27
+          ],
+          [
+            0,
+            28,
+            236
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "classifier": {
+        "accuracy": 0.914286,
+        "balanced_accuracy": 0.891045,
+        "macro_f1": 0.892744,
+        "confusion_matrix": [
+          [
+            758,
+            30,
+            0
+          ],
+          [
+            32,
+            291,
+            25
+          ],
+          [
+            0,
+            33,
+            231
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      }
+    },
+    "fixed_held_out_test": {
+      "test_rows": 280,
+      "raw_regressor": {
+        "mae": 3.131054,
+        "rmse": 4.268243,
+        "r2": 0.97754
+      },
+      "raw_regressor_threshold_labels": {
+        "accuracy": 0.921429,
+        "balanced_accuracy": 0.900034,
+        "macro_f1": 0.903923,
+        "confusion_matrix": [
+          [
+            153,
+            5,
+            0
+          ],
+          [
+            8,
+            57,
+            4
+          ],
+          [
+            0,
+            5,
+            48
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "raw_classifier": {
+        "accuracy": 0.932143,
+        "balanced_accuracy": 0.910347,
+        "macro_f1": 0.914828,
+        "confusion_matrix": [
+          [
+            154,
+            4,
+            0
+          ],
+          [
+            6,
+            60,
+            3
+          ],
+          [
+            0,
+            6,
+            47
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "current_runtime": {
+        "mae": 8.262337,
+        "rmse": 11.636707,
+        "r2": 0.833053,
+        "accuracy": 0.732143,
+        "balanced_accuracy": 0.776463,
+        "macro_f1": 0.722795,
+        "confusion_matrix": [
+          [
+            107,
+            51,
+            0
+          ],
+          [
+            0,
+            45,
+            24
+          ],
+          [
+            0,
+            0,
+            53
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "improved_runtime": {
+        "mae": 3.09411,
+        "rmse": 4.242879,
+        "r2": 0.977806,
+        "accuracy": 0.932143,
+        "balanced_accuracy": 0.910347,
+        "macro_f1": 0.914828,
+        "confusion_matrix": [
+          [
+            154,
+            4,
+            0
+          ],
+          [
+            6,
+            60,
+            3
+          ],
+          [
+            0,
+            6,
+            47
+          ]
+        ],
+        "label_order": [
+          "low",
+          "medium",
+          "high"
+        ]
+      }
+    }
+  },
+  "project_delay": {
+    "dataset": {
+      "rows": 1240,
+      "provenance": "synthetic_scenario_data",
+      "label_distribution": {
+        "medium": 320,
+        "low": 260,
+        "acceptable_delay": 260,
+        "high": 260,
+        "critical": 140
+      }
+    },
+    "five_fold_cross_validation": {
+      "regressor": {
+        "mae": 5.253047,
+        "rmse": 8.37482,
+        "r2": 0.915485
+      },
+      "regressor_threshold_labels": {
+        "accuracy": 0.984677,
+        "balanced_accuracy": 0.985591,
+        "macro_f1": 0.984492,
+        "confusion_matrix": [
+          [
+            257,
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            255,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            4,
+            314,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            256,
+            4
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            139
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "classifier": {
+        "accuracy": 0.999194,
+        "balanced_accuracy": 0.998571,
+        "macro_f1": 0.998899,
+        "confusion_matrix": [
+          [
+            260,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            260,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            320,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            260,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            139
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      }
+    },
+    "fixed_held_out_test": {
+      "test_rows": 310,
+      "raw_regressor": {
+        "mae": 5.11663,
+        "rmse": 7.741584,
+        "r2": 0.92247
+      },
+      "raw_regressor_threshold_labels": {
+        "accuracy": 0.974194,
+        "balanced_accuracy": 0.978846,
+        "macro_f1": 0.974507,
+        "confusion_matrix": [
+          [
+            65,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            65,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            74,
+            3,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            63,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            35
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "raw_classifier": {
+        "accuracy": 0.996774,
+        "balanced_accuracy": 0.9975,
+        "macro_f1": 0.997215,
+        "confusion_matrix": [
+          [
+            65,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            65,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            79,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            65,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            35
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "current_runtime": {
+        "mae": 8.825524,
+        "rmse": 14.083458,
+        "r2": 0.743418,
+        "accuracy": 0.680645,
+        "balanced_accuracy": 0.706346,
+        "macro_f1": 0.611566,
+        "confusion_matrix": [
+          [
+            65,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            15,
+            50,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            61,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            41,
+            0,
+            24
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            35
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "improved_runtime": {
+        "mae": 5.053872,
+        "rmse": 7.651996,
+        "r2": 0.924254,
+        "accuracy": 0.996774,
+        "balanced_accuracy": 0.9975,
+        "macro_f1": 0.997215,
+        "confusion_matrix": [
+          [
+            65,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            65,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            79,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            65,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            35
+          ]
+        ],
+        "label_order": [
+          "acceptable_delay",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      }
+    }
+  },
+  "economic_forecast": {
+    "dataset": {
+      "rows": 62,
+      "provenance": "real_macro_indicator_history"
+    },
+    "rolling_origin": {
+      "general_inflation_rate": {
+        "1_month": {
+          "test_cases": 49,
+          "current_runtime": {
+            "mae": 2.517701,
+            "rmse": 3.568098,
+            "r2": 0.730119
+          },
+          "improved_runtime": {
+            "mae": 1.94965,
+            "rmse": 3.047583,
+            "r2": 0.803116
+          },
+          "persistence_baseline": {
+            "mae": 1.920408,
+            "rmse": 3.013135,
+            "r2": 0.807542
+          }
+        },
+        "3_month": {
+          "test_cases": 47,
+          "current_runtime": {
+            "mae": 4.668154,
+            "rmse": 6.284011,
+            "r2": 0.175288
+          },
+          "improved_runtime": {
+            "mae": 4.455726,
+            "rmse": 6.221735,
+            "r2": 0.191553
+          },
+          "persistence_baseline": {
+            "mae": 4.442553,
+            "rmse": 6.226129,
+            "r2": 0.190411
+          }
+        },
+        "6_month": {
+          "test_cases": 44,
+          "current_runtime": {
+            "mae": 6.880311,
+            "rmse": 8.096385,
+            "r2": -0.336105
+          },
+          "improved_runtime": {
+            "mae": 6.913749,
+            "rmse": 8.159861,
+            "r2": -0.357138
+          },
+          "persistence_baseline": {
+            "mae": 6.925,
+            "rmse": 8.174392,
+            "r2": -0.361976
+          }
+        },
+        "12_month": {
+          "test_cases": 38,
+          "current_runtime": {
+            "mae": 10.968627,
+            "rmse": 12.511035,
+            "r2": -2.184542
+          },
+          "improved_runtime": {
+            "mae": 10.670021,
+            "rmse": 12.120226,
+            "r2": -1.988698
+          },
+          "persistence_baseline": {
+            "mae": 10.636842,
+            "rmse": 12.084396,
+            "r2": -1.971054
+          }
+        }
+      },
+      "construction_cost_growth": {
+        "1_month": {
+          "test_cases": 32,
+          "current_runtime": {
+            "mae": 5.465203,
+            "rmse": 8.992523,
+            "r2": 0.733343
+          },
+          "improved_runtime": {
+            "mae": 3.788925,
+            "rmse": 8.588524,
+            "r2": 0.756765
+          },
+          "persistence_baseline": {
+            "mae": 3.602672,
+            "rmse": 8.598628,
+            "r2": 0.756192
+          }
+        },
+        "3_month": {
+          "test_cases": 30,
+          "current_runtime": {
+            "mae": 11.497449,
+            "rmse": 14.93438,
+            "r2": 0.29746
+          },
+          "improved_runtime": {
+            "mae": 11.52544,
+            "rmse": 15.316467,
+            "r2": 0.261052
+          },
+          "persistence_baseline": {
+            "mae": 11.52855,
+            "rmse": 15.381694,
+            "r2": 0.254745
+          }
+        },
+        "6_month": {
+          "test_cases": 27,
+          "current_runtime": {
+            "mae": 13.641896,
+            "rmse": 19.15731,
+            "r2": -0.10447
+          },
+          "improved_runtime": {
+            "mae": 13.737197,
+            "rmse": 18.755673,
+            "r2": -0.058644
+          },
+          "persistence_baseline": {
+            "mae": 13.749,
+            "rmse": 18.722882,
+            "r2": -0.054946
+          }
+        },
+        "12_month": {
+          "test_cases": 21,
+          "current_runtime": {
+            "mae": 22.239233,
+            "rmse": 28.587651,
+            "r2": -1.094841
+          },
+          "improved_runtime": {
+            "mae": 22.632606,
+            "rmse": 28.613462,
+            "r2": -1.098626
+          },
+          "persistence_baseline": {
+            "mae": 22.676314,
+            "rmse": 28.618941,
+            "r2": -1.09943
+          }
+        }
+      },
+      "usd_growth": {
+        "1_month": {
+          "test_cases": 31,
+          "current_runtime": {
+            "mae": 15.385184,
+            "rmse": 18.175304,
+            "r2": 0.713817
+          },
+          "improved_runtime": {
+            "mae": 12.890442,
+            "rmse": 15.775634,
+            "r2": 0.784397
+          },
+          "persistence_baseline": {
+            "mae": 12.730229,
+            "rmse": 15.631755,
+            "r2": 0.788312
+          }
+        },
+        "3_month": {
+          "test_cases": 29,
+          "current_runtime": {
+            "mae": 26.760702,
+            "rmse": 31.840286,
+            "r2": 0.132701
+          },
+          "improved_runtime": {
+            "mae": 26.933581,
+            "rmse": 31.56322,
+            "r2": 0.14773
+          },
+          "persistence_baseline": {
+            "mae": 26.988083,
+            "rmse": 31.588255,
+            "r2": 0.146377
+          }
+        },
+        "6_month": {
+          "test_cases": 26,
+          "current_runtime": {
+            "mae": 35.030234,
+            "rmse": 41.791522,
+            "r2": -0.348845
+          },
+          "improved_runtime": {
+            "mae": 34.5334,
+            "rmse": 42.501874,
+            "r2": -0.395089
+          },
+          "persistence_baseline": {
+            "mae": 34.478196,
+            "rmse": 42.603582,
+            "r2": -0.401774
+          }
+        },
+        "12_month": {
+          "test_cases": 20,
+          "current_runtime": {
+            "mae": 52.567688,
+            "rmse": 63.194195,
+            "r2": -1.505474
+          },
+          "improved_runtime": {
+            "mae": 50.144175,
+            "rmse": 60.215996,
+            "r2": -1.274884
+          },
+          "persistence_baseline": {
+            "mae": 49.879235,
+            "rmse": 59.895923,
+            "r2": -1.250764
+          }
+        }
+      },
+      "housing_cpi_growth": {
+        "1_month": {
+          "test_cases": 9,
+          "current_runtime": {
+            "mae": 0.569837,
+            "rmse": 0.667743,
+            "r2": 0.189114
+          },
+          "improved_runtime": {
+            "mae": 0.48136,
+            "rmse": 0.563787,
+            "r2": 0.421942
+          },
+          "persistence_baseline": {
+            "mae": 0.473922,
+            "rmse": 0.560337,
+            "r2": 0.428995
+          }
+        },
+        "3_month": {
+          "test_cases": 7,
+          "current_runtime": {
+            "mae": 0.934607,
+            "rmse": 1.099432,
+            "r2": -1.29543
+          },
+          "improved_runtime": {
+            "mae": 0.864966,
+            "rmse": 1.037534,
+            "r2": -1.044242
+          },
+          "persistence_baseline": {
+            "mae": 0.857229,
+            "rmse": 1.033218,
+            "r2": -1.02727
+          }
+        },
+        "6_month": {
+          "test_cases": 4,
+          "current_runtime": {
+            "mae": 1.187795,
+            "rmse": 1.238654,
+            "r2": -2.337426
+          },
+          "improved_runtime": {
+            "mae": 1.176977,
+            "rmse": 1.281117,
+            "r2": -2.570174
+          },
+          "persistence_baseline": {
+            "mae": 1.175775,
+            "rmse": 1.28808,
+            "r2": -2.609086
+          }
+        }
+      }
+    },
+    "aggregate_mae_across_series_and_horizons": {
+      "test_cases": 414,
+      "current_runtime": 13.645024,
+      "improved_runtime": 13.10227,
+      "persistence_baseline": 13.059531,
+      "improvement_percent_vs_current": 3.977669
+    }
+  }
+}

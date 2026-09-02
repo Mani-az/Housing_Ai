@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pyodbc
+python-dotenv
+pydantic
+pydantic-settings
+email-validator
+numpy
+pandas
+scikit-learn
