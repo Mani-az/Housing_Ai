@@ -32,6 +32,7 @@ from app.routes.member_risk_routes import router as member_risk_router
 from app.routes.project_delay_routes import router as project_delay_router
 from app.routes.project_owner_routes import router as project_owner_router
 from app.routes.membership_request_routes import router as membership_request_router
+from app.routes.valuation_routes import router as valuation_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -83,3 +84,4 @@ app.include_router(member_risk_router)
 app.include_router(project_delay_router)
 app.include_router(project_owner_router)
 app.include_router(membership_request_router)
+app.include_router(valuation_router)

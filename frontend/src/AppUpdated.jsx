@@ -1850,6 +1850,10 @@ function isMemberAccount(account) {
   return ["member", "MEMBER", "buyer"].includes(account?.role);
 }
 
+function isOwnerAccount(account) {
+  return ["project_owner", "owner", "OWNER"].includes(account?.role);
+}
+
 function canAccessProject(project, account) {
   if (!account || isAdminAccount(account)) return true;
 
@@ -3564,6 +3568,163 @@ function Dashboard({ currentAccount }) {
   );
 }
 
+function formatValuationMoney(value) {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? `${Math.round(numericValue).toLocaleString("en-US")} تومان` : "-";
+}
+
+function formatValuationPercent(value) {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : "-";
+}
+
+function PropertyEstimationTool() {
+  const [mode, setMode] = useState("property");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState(null);
+  const [propertyForm, setPropertyForm] = useState({
+    city: "Tehran",
+    neighborhood: "Jordan",
+    area: "150",
+    building_age: "5",
+    rooms: "3",
+    floor: "",
+    elevator: true,
+    parking: true,
+    storage: true,
+    property_condition: "good",
+  });
+  const [projectForm, setProjectForm] = useState({
+    city: "Tehran",
+    neighborhood: "Jordan",
+    total_units: "40",
+    average_unit_area: "100",
+    total_area: "",
+    building_type: "standard",
+  });
+
+  function handlePropertyChange(event) {
+    const { name, value, type, checked } = event.target;
+    setPropertyForm((previous) => ({ ...previous, [name]: type === "checkbox" ? checked : value }));
+  }
+
+  function handleProjectChange(event) {
+    const { name, value } = event.target;
+    setProjectForm((previous) => ({ ...previous, [name]: value }));
+  }
+
+  function changeMode(nextMode) {
+    setMode(nextMode);
+    setError("");
+    setResult(null);
+  }
+
+  async function handleEstimate(event) {
+    event.preventDefault();
+    setError("");
+    setResult(null);
+    setLoading(true);
+
+    try {
+      const payload = mode === "property"
+        ? {
+            ...propertyForm,
+            area: Number(propertyForm.area),
+            building_age: Number(propertyForm.building_age || 0),
+            rooms: propertyForm.rooms === "" ? null : Number(propertyForm.rooms),
+            floor: propertyForm.floor === "" ? null : Number(propertyForm.floor),
+          }
+        : {
+            ...projectForm,
+            total_units: Number(projectForm.total_units),
+            average_unit_area: Number(projectForm.average_unit_area),
+            total_area: projectForm.total_area === "" ? null : Number(projectForm.total_area),
+          };
+      const endpoint = mode === "property" ? "/ml/valuation/property" : "/ml/valuation/project";
+      const response = await axios.post(`${API_BASE_URL}${endpoint}`, payload);
+      setResult(response.data);
+    } catch (err) {
+      console.error("Property estimation error:", err);
+      setError(err.response?.data?.detail || "Property estimation could not be completed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const inputStyle = { ...styles.input, minHeight: "44px", boxSizing: "border-box" };
+  const tabStyle = (active) => ({
+    border: active ? "1px solid #4f7188" : "1px solid #d8e1e6",
+    borderRadius: "12px",
+    padding: "11px 14px",
+    background: active ? "#edf2f4" : "#ffffff",
+    color: active ? "#2f5267" : "#667085",
+    fontWeight: 800,
+    cursor: "pointer",
+  });
+
+  return (
+    <section className="presentation-card" style={{ ...styles.card, marginBottom: "24px", border: "1px solid #b9cbd4" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", flexWrap: "wrap" }}>
+        <div>
+          <p style={styles.controlEyebrow}>Project tool · Admin &amp; Owner</p>
+          <h2 style={{ ...styles.sectionTitle, marginBottom: "5px" }}>Property Estimation</h2>
+          <p style={styles.cardText}>Estimate a property's market value or the indicative value of a construction project.</p>
+        </div>
+        <span style={{ ...styles.scopeBadge, display: "inline-flex", alignItems: "center", gap: "6px" }}><Sparkles size={14} /> Estimation tool</span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", margin: "20px 0" }}>
+        <button type="button" onClick={() => changeMode("property")} style={tabStyle(mode === "property")}>Single Property Estimation</button>
+        <button type="button" onClick={() => changeMode("project")} style={tabStyle(mode === "project")}>Project Valuation</button>
+      </div>
+
+      <form onSubmit={handleEstimate}>
+        {mode === "property" ? (
+          <div style={styles.formGrid}>
+            <div><label style={styles.label}>City</label><DownwardDropdown value={propertyForm.city} onChange={(value) => setPropertyForm((p) => ({ ...p, city: value }))} options={CITY_OPTIONS} placeholder="Select city" /></div>
+            <div><label style={styles.label}>Neighborhood</label><DownwardDropdown value={propertyForm.neighborhood} onChange={(value) => setPropertyForm((p) => ({ ...p, neighborhood: value }))} options={TEHRAN_NEIGHBORHOOD_OPTIONS} placeholder="Select neighborhood" /></div>
+            <div><label style={styles.label}>Area (m²)</label><input name="area" type="number" min="1" value={propertyForm.area} onChange={handlePropertyChange} style={inputStyle} /></div>
+            <div><label style={styles.label}>Building age (years)</label><input name="building_age" type="number" min="0" value={propertyForm.building_age} onChange={handlePropertyChange} style={inputStyle} /></div>
+            <div><label style={styles.label}>Rooms</label><input name="rooms" type="number" min="0" value={propertyForm.rooms} onChange={handlePropertyChange} style={inputStyle} /></div>
+            <div><label style={styles.label}>Floor</label><input name="floor" type="number" value={propertyForm.floor} onChange={handlePropertyChange} style={inputStyle} placeholder="Optional" /></div>
+            <div><label style={styles.label}>Condition</label><DownwardDropdown value={propertyForm.property_condition} onChange={(value) => setPropertyForm((p) => ({ ...p, property_condition: value }))} options={[{ value: "new", label: "New" }, { value: "renovated", label: "Renovated" }, { value: "excellent", label: "Excellent" }, { value: "good", label: "Good" }, { value: "needs_renovation", label: "Needs renovation" }]} placeholder="Select condition" /></div>
+            <div style={{ display: "flex", alignItems: "center", gap: "18px", flexWrap: "wrap", paddingTop: "28px" }}>
+              {["elevator", "parking", "storage"].map((name) => <label key={name} style={{ display: "inline-flex", alignItems: "center", gap: "7px", color: "#475467", fontWeight: 700, fontSize: "13px" }}><input name={name} type="checkbox" checked={propertyForm[name]} onChange={handlePropertyChange} />{name[0].toUpperCase() + name.slice(1)}</label>)}
+            </div>
+          </div>
+        ) : (
+          <div style={styles.formGrid}>
+            <div><label style={styles.label}>City</label><DownwardDropdown value={projectForm.city} onChange={(value) => setProjectForm((p) => ({ ...p, city: value }))} options={CITY_OPTIONS} placeholder="Select city" /></div>
+            <div><label style={styles.label}>Neighborhood</label><DownwardDropdown value={projectForm.neighborhood} onChange={(value) => setProjectForm((p) => ({ ...p, neighborhood: value }))} options={TEHRAN_NEIGHBORHOOD_OPTIONS} placeholder="Select neighborhood" /></div>
+            <div><label style={styles.label}>Total units</label><input name="total_units" type="number" min="1" value={projectForm.total_units} onChange={handleProjectChange} style={inputStyle} /></div>
+            <div><label style={styles.label}>Average unit area (m²)</label><input name="average_unit_area" type="number" min="1" value={projectForm.average_unit_area} onChange={handleProjectChange} style={inputStyle} /></div>
+            <div><label style={styles.label}>Total area (m²)</label><input name="total_area" type="number" min="1" value={projectForm.total_area} onChange={handleProjectChange} style={inputStyle} placeholder="Optional; units × average area" /></div>
+            <div><label style={styles.label}>Building type</label><DownwardDropdown value={projectForm.building_type} onChange={(value) => setProjectForm((p) => ({ ...p, building_type: value }))} options={[{ value: "standard", label: "Standard" }, { value: "modern", label: "Modern" }, { value: "luxury", label: "Luxury" }, { value: "villa", label: "Villa" }]} placeholder="Select type" /></div>
+          </div>
+        )}
+        <button type="submit" disabled={loading} style={{ ...styles.primaryButton, marginTop: "18px", ...(loading ? styles.disabledButton : {}) }}>{loading ? "Estimating..." : "Estimate market value"}</button>
+      </form>
+
+      {error && <ErrorBox message={error} />}
+      {result && (
+        <div style={{ marginTop: "22px", padding: "18px", borderRadius: "16px", background: "#f7fafc", border: "1px solid #d8e1e6" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px" }}>
+            <div style={styles.roundSummaryCardStrong}><span>{mode === "property" ? "Estimated total price" : "Estimated project value"}</span><strong>{formatValuationMoney(mode === "property" ? result.estimated_total_price : result.estimated_total_project_value)}</strong></div>
+            <div style={styles.roundSummaryCard}><span>Price / m²</span><strong>{formatValuationMoney(result.estimated_price_per_sqm)}</strong></div>
+            <div style={styles.roundSummaryCard}><span>{mode === "property" ? "Price range" : "Project range"}</span><strong>{formatValuationMoney(result.price_range_min)} – {formatValuationMoney(result.price_range_max)}</strong></div>
+            {mode === "project" && <div style={styles.roundSummaryCard}><span>Value / unit</span><strong>{formatValuationMoney(result.estimated_value_per_unit)}</strong></div>}
+            <div style={styles.roundSummaryCard}><span>Confidence</span><strong>{formatValuationPercent(result.confidence)} · {result.confidence_label}</strong></div>
+          </div>
+          <p style={{ ...styles.cardText, margin: "14px 0 6px" }}>{result.explanation}</p>
+          <p style={styles.mutedSmall}>Market samples used: {formatValue(result.market_samples_used)} · Factors: {result.influential_factors?.join(", ")}</p>
+          <p style={styles.mutedSmall}>{result.model_note}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Projects({ currentAccount, onProjectCreatedForOwner }) {
   const [projects, setProjects] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -3618,6 +3779,7 @@ function Projects({ currentAccount, onProjectCreatedForOwner }) {
   }, [payments, currentAccount, projects]);
 
   const isAdmin = isAdminAccount(currentAccount);
+  const canUsePropertyEstimation = isAdmin || isOwnerAccount(currentAccount);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -3771,6 +3933,8 @@ function Projects({ currentAccount, onProjectCreatedForOwner }) {
             : "Create and manage projects owned by this account"
         }
       />
+
+      {canUsePropertyEstimation && <PropertyEstimationTool />}
 
       <div className="presentation-card" style={styles.card}>
         <h2 style={styles.sectionTitle}>{isAdmin ? "Add New Project" : "Create New Project"}</h2>

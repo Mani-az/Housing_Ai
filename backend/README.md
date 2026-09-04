@@ -138,6 +138,15 @@ Uses payment behavior and financial-pressure features. The runtime also treats v
 
 Uses project, payment-behavior and economic-pressure features. Penalty records are excluded from installment-round behavior so late-fee accounting does not artificially inflate payment-delay features.
 
+### Property Estimation
+
+The Admin and Owner Projects pages include an embedded property-estimation tool backed by:
+
+- `POST /ml/valuation/property` for a single property;
+- `POST /ml/valuation/project` for an indicative construction-project value.
+
+The estimation service uses the existing `property_listings` market dataset, the imported historical inflation factor, the latest available Housing CPI (or General CPI fallback) from `economic_indicators`, and a transparent current-Tehran market calibration. A small deterministic Random Forest is trained at request time on the selected neighborhood's listings. Controlled synthetic perturbations are used only to broaden demo scenarios. A neighborhood with fewer than eight direct samples falls back to Tehran-wide data with low confidence, rather than claiming a precise local price. The result is a market estimate, not a guaranteed transaction price; see `evaluation/AI_VALUATION.md` for methodology and limitations.
+
 ## ML limitations
 
 Buyer/member-risk and project-delay training data are synthetic demo datasets. Reported accuracy therefore measures consistency with those synthetic scenarios and must **not** be presented as verified real-world financial accuracy.
