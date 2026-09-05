@@ -696,6 +696,32 @@ button {
 .prediction-result-card {
   border-radius: 22px !important;
   padding: 24px !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.prediction-result-card:hover {
+  transform: translateY(-2px);
+  border-color: #c7d4da !important;
+  box-shadow: 0 16px 34px rgba(18, 26, 34, 0.09) !important;
+}
+
+.member-risk-card {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.member-risk-card:hover {
+  transform: translateY(-1px);
+  border-color: #c7d4da !important;
+  box-shadow: 0 12px 26px rgba(18, 26, 34, 0.08) !important;
+}
+
+.result-metric {
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.result-metric:hover {
+  border-color: #c7d4da !important;
+  background: #ffffff !important;
 }
 
 .prediction-result-card::before {
@@ -706,6 +732,84 @@ button {
   margin-bottom: 16px;
   border-radius: 99px;
   background: linear-gradient(90deg, var(--brand), var(--brass));
+}
+
+.prediction-result-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.prediction-result-heading > div:first-child {
+  min-width: 0;
+}
+
+.prediction-info-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.prediction-info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #cbd7dc;
+  border-radius: 999px;
+  background: #f7fafc;
+  color: #4f7188;
+  cursor: pointer;
+}
+
+.prediction-info-button:hover,
+.prediction-info-button:focus-visible {
+  border-color: #4f7188;
+  background: #edf2f4;
+  box-shadow: 0 0 0 4px rgba(79, 113, 136, 0.1);
+  outline: none;
+}
+
+.prediction-info-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(320px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border: 1px solid #cbd7dc;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #475467;
+  box-shadow: 0 16px 36px rgba(18, 26, 34, 0.16);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  transform-origin: top right;
+  animation: predictionInfoIn 120ms ease-out both;
+}
+
+.prediction-info-popover p {
+  margin: 0;
+}
+
+.prediction-info-popover p + p {
+  margin-top: 8px;
+}
+
+@keyframes predictionInfoIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .prediction-progress-overlay {

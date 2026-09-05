@@ -10,6 +10,7 @@ import {
   ChevronRight,
   CreditCard,
   HardHat,
+  Info,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
@@ -1732,28 +1733,6 @@ const TEHRAN_NEIGHBORHOOD_OPTIONS = [
   }
 ];
 
-const FALLBACK_DEMO_ACCOUNTS = [
-  {
-    id: "admin-demo",
-    user_id: null,
-    displayName: "Admin Demo",
-    email: "admin@housing-ai.demo",
-    role: "admin",
-    roleLabel: "System Admin",
-    accessLabel: "Full platform access",
-    projectIds: null,
-    projectNames: [],
-  },
-  {
-    id: "owner-demo", user_id: 91, displayName: "Owner Demo", email: "owner@housing-ai.demo", phone_number: "09123456789",
-    role: "project_owner", roleLabel: "Project Owner", accessLabel: "Assigned project access", projectIds: ["1"], projectNames: ["Aria Residences"], username: "owner",
-  },
-  {
-    id: "member-demo", user_id: 1, displayName: "Member Demo", email: "member@housing-ai.demo", phone_number: "09123456789",
-    role: "MEMBER", roleLabel: "Member", accessLabel: "Find projects and manage payments", projectIds: [], projectNames: [], username: "member",
-  },
-];
-
 function normalizeDemoAccount(account) {
   if (!account || !account.id) return null;
 
@@ -1793,11 +1772,7 @@ function normalizeDemoAccounts(accounts) {
     .map(normalizeDemoAccount)
     .filter(Boolean);
 
-  return normalizedAccounts.length > 0 ? normalizedAccounts : FALLBACK_DEMO_ACCOUNTS;
-}
-
-function normalizeLoginValue(value) {
-  return String(value || "").trim().toLowerCase();
+  return normalizedAccounts;
 }
 
 function getDemoUsername(account) {
@@ -1817,23 +1792,7 @@ function getDemoUsername(account) {
     .toLowerCase();
 }
 
-function getDemoPassword(account) {
-  return account?.role === "admin" ? "admin" : "1234";
-}
-
-function findDemoAccountByLogin(accounts, username, password) {
-  const normalizedUsername = normalizeLoginValue(username);
-  const normalizedPassword = normalizeLoginValue(password);
-
-  return accounts.find((account) => {
-    return (
-      getDemoUsername(account) === normalizedUsername &&
-      getDemoPassword(account) === normalizedPassword
-    );
-  }) || null;
-}
-
-function getStoredDemoAccount(accounts = FALLBACK_DEMO_ACCOUNTS) {
+function getStoredDemoAccount(accounts) {
   try {
     const storedId = localStorage.getItem("housing_ai_demo_account");
     return accounts.find((account) => account.id === storedId) || null;
@@ -2505,6 +2464,41 @@ function ErrorBox({ message }) {
     <div className="state-box state-error" style={styles.errorBox}>
       <strong>Error:</strong> {message}
     </div>
+  );
+}
+
+function PredictionInfo({ label = "Show prediction details", children }) {
+  const [pinned, setPinned] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const visible = pinned || hovered || focused;
+
+  return (
+    <span
+      className="prediction-info-wrap"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
+    >
+      <button
+        type="button"
+        className="prediction-info-button"
+        aria-label={label}
+        aria-expanded={visible}
+        title={label}
+        onClick={() => setPinned((previous) => !previous)}
+      >
+        <Info size={15} aria-hidden="true" />
+      </button>
+      {visible && (
+        <div className="prediction-info-popover" role="tooltip">
+          {children}
+        </div>
+      )}
+    </span>
   );
 }
 
@@ -5938,8 +5932,16 @@ function Predictions({ currentAccount }) {
         <div style={styles.resultGrid}>
           {economicForecast && (
             <div className="prediction-result-card" style={styles.resultBox}>
-              <p style={styles.resultEyebrow}>Economic Forecast</p>
-              <h2 style={styles.resultTitle}>Economic Indicators</h2>
+              <div className="prediction-result-heading">
+                <div>
+                  <p style={styles.resultEyebrow}>Economic Forecast</p>
+                  <h2 style={styles.resultTitle}>Economic Indicators</h2>
+                </div>
+                <PredictionInfo label="Show economic forecast details">
+                  <p>Values are project-horizon YoY percentage estimates, not cumulative growth from today.</p>
+                  {economicForecast.model_note && <p>{formatValue(economicForecast.model_note)}</p>}
+                </PredictionInfo>
+              </div>
               <div style={styles.resultMetricGrid}>
                 <div className="result-metric" style={styles.resultMetric}>
                   <span>General inflation</span>
@@ -5958,17 +5960,24 @@ function Predictions({ currentAccount }) {
                   <strong>{formatValue(economicForecast.predicted_usd_growth)}</strong>
                 </div>
               </div>
-              <p style={styles.resultNote}>
-                Values are project-horizon YoY percentage estimates, not cumulative growth from today.
-              </p>
-              <p style={styles.resultNote}>{formatValue(economicForecast.model_note)}</p>
             </div>
           )}
 
           {projectDelay && (
             <div className="prediction-result-card" style={styles.resultBox}>
-              <p style={styles.resultEyebrow}>Project Delay Prediction</p>
-              <h2 style={styles.resultTitle}>{formatValue(projectDelay.project_name)}</h2>
+              <div className="prediction-result-heading">
+                <div>
+                  <p style={styles.resultEyebrow}>Project Delay Prediction</p>
+                  <h2 style={styles.resultTitle}>{formatValue(projectDelay.project_name)}</h2>
+                </div>
+                <PredictionInfo label="Show project delay details">
+                  <p>
+                    {Array.isArray(projectDelay.main_delay_factors)
+                      ? projectDelay.main_delay_factors.join(", ")
+                      : formatValue(projectDelay.model_note)}
+                  </p>
+                </PredictionInfo>
+              </div>
               <div style={styles.resultMetricGrid}>
                 <div className="result-metric" style={styles.resultMetric}>
                   <span>Delay risk level</span>
@@ -5987,11 +5996,6 @@ function Predictions({ currentAccount }) {
                   <strong>{formatValue(projectDelay.cash_flow_pressure_ratio)}</strong>
                 </div>
               </div>
-              <p style={styles.resultNote}>
-                {Array.isArray(projectDelay.main_delay_factors)
-                  ? projectDelay.main_delay_factors.join(", ")
-                  : formatValue(projectDelay.model_note)}
-              </p>
             </div>
           )}
 
@@ -6009,7 +6013,14 @@ function Predictions({ currentAccount }) {
                           <p style={styles.memberRiskResultEmail}>{risk.member_email}</p>
                         )}
                       </div>
-                      <StatusBadge value={risk.predicted_risk_label} />
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                        <StatusBadge value={risk.predicted_risk_label} />
+                        {(risk.risk_explanation || risk.model_note) && (
+                          <PredictionInfo label={`Show financial risk details for ${risk.member_name || "this member"}`}>
+                            <p>{formatValue(risk.risk_explanation || risk.model_note)}</p>
+                          </PredictionInfo>
+                        )}
+                      </div>
                     </div>
 
                     <div style={styles.memberRiskMiniGrid}>
@@ -6071,11 +6082,6 @@ function Predictions({ currentAccount }) {
                       </div>
                     </div>
 
-                    {(risk.risk_explanation || risk.model_note) && (
-                      <p style={styles.memberRiskResultNote}>
-                        {formatValue(risk.risk_explanation || risk.model_note)}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>
@@ -6089,7 +6095,6 @@ function Predictions({ currentAccount }) {
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [demoAccounts, setDemoAccounts] = useState(FALLBACK_DEMO_ACCOUNTS);
   const [demoAccountsLoading, setDemoAccountsLoading] = useState(true);
   const [demoAccountsError, setDemoAccountsError] = useState("");
   const [currentAccount, setCurrentAccount] = useState(null);
@@ -6110,7 +6115,6 @@ function App() {
 
         if (!isMounted) return;
 
-        setDemoAccounts(accounts);
         setCurrentAccount((previousAccount) => {
           if (previousAccount) {
             return accounts.find((account) => account.id === previousAccount.id) || null;
@@ -6121,9 +6125,7 @@ function App() {
       } catch {
         if (!isMounted) return;
 
-        setDemoAccounts(FALLBACK_DEMO_ACCOUNTS);
-        setCurrentAccount((previousAccount) => previousAccount || getStoredDemoAccount(FALLBACK_DEMO_ACCOUNTS));
-        setDemoAccountsError("Backend demo accounts could not be loaded. Showing fallback admin access.");
+        setDemoAccountsError(`Could not connect to the Housing AI API at ${API_BASE_URL}.`);
       } finally {
         if (isMounted) {
           setDemoAccountsLoading(false);
@@ -6161,30 +6163,16 @@ function App() {
         // localStorage can fail in private mode; keep the in-memory demo session.
       }
 
-      setDemoAccounts((previousAccounts) => {
-        const exists = previousAccounts.some((account) => account.id === matchedAccount.id);
-        return exists
-          ? previousAccounts.map((account) =>
-              account.id === matchedAccount.id ? matchedAccount : account
-            )
-          : [...previousAccounts, matchedAccount];
-      });
       setCurrentAccount(matchedAccount);
     } catch (error) {
-      const fallbackAccount = findDemoAccountByLogin(demoAccounts, username, password);
-
-      if (fallbackAccount) {
-        try {
-          localStorage.setItem("housing_ai_demo_account", fallbackAccount.id);
-        } catch {
-          // localStorage can fail in private mode; keep the in-memory demo session.
-        }
-
-        setCurrentAccount(fallbackAccount);
-        return;
+      const status = error.response?.status;
+      if (status === 401) {
+        setLoginError("Invalid username or password.");
+      } else if (!error.response) {
+        setLoginError(`Could not connect to the Housing AI API at ${API_BASE_URL}.`);
+      } else {
+        setLoginError(`Housing AI API server error (HTTP ${status}).`);
       }
-
-      setLoginError(error.response?.data?.detail || "Invalid username or password.");
     }
   }
 
@@ -6211,15 +6199,6 @@ function App() {
         setCreateAccountError("Account was created, but the response could not be read.");
         return;
       }
-
-      setDemoAccounts((previousAccounts) => {
-        const exists = previousAccounts.some((account) => account.id === createdAccount.id);
-        return exists
-          ? previousAccounts.map((account) =>
-              account.id === createdAccount.id ? createdAccount : account
-            )
-          : [...previousAccounts, createdAccount];
-      });
 
       try {
         localStorage.setItem("housing_ai_demo_account", createdAccount.id);
@@ -7561,18 +7540,6 @@ const styles = {
     color: "#475467",
     fontSize: "11px",
     lineHeight: 1.55,
-  },
-  memberRiskResultNote: {
-    margin: "12px 0 0 0",
-    color: "#667085",
-    lineHeight: 1.5,
-    fontSize: "12px",
-  },
-  resultNote: {
-    margin: "14px 0 0 0",
-    color: "#667085",
-    lineHeight: 1.55,
-    fontSize: "13px",
   },
   resultBox: {
     backgroundColor: "#ffffff",

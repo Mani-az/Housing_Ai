@@ -277,7 +277,7 @@ def login_demo_account(db: Session, login_data: DemoLoginRequest) -> dict:
         return build_owner_demo_account(db=db, owner=owner)
 
     # Backward-compatible fallback for already-seeded owners without credential rows.
-    if password == "1234":
+    if credential is None and password == "1234":
         owners = db.query(User).filter(func.lower(User.role).in_(["project_owner", "owner"])).all()
         for owner in owners:
             if default_owner_username(owner) == username:

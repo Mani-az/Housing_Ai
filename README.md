@@ -170,54 +170,75 @@ Housing-Ai-System/
 
 Install the following before running the full demo:
 
-- Python 3.10 or newer
-- Node.js 18 or newer and npm
+- Python 3.11 or newer. The committed scikit-learn 1.8.0 model artifacts
+  require Python 3.11+.
+- Node.js 18 or newer and npm. The validation environment used Node.js
+  24.18.0 with npm 11.16.0.
 - Microsoft SQL Server (local installation or a reachable server)
 - Microsoft ODBC Driver 18 for SQL Server
 
-Create an empty database named `HousingAI` in SQL Server before starting the
-backend. The application creates its tables with SQLAlchemy on startup, but it
-does not create the SQL Server database itself.
+Linux/WSL needs both the `unixodbc` system package and Microsoft's
+`msodbcsql18` package. Installing only the Python `pyodbc` package is not
+enough; without `unixodbc`, `import pyodbc` fails with
+`libodbc.so.2: cannot open shared object file`.
+
+Create the database in SQL Server before starting the backend (for example, in
+SSMS or `sqlcmd`):
+
+```sql
+CREATE DATABASE HousingAI;
+```
+
+The application and seed scripts call SQLAlchemy `create_all`, which creates
+tables, but `create_all` does not create the SQL Server database itself.
 
 ## Backend setup
 
-Open a terminal in the `backend` directory:
+All backend commands below must be run from the `backend/` directory. This is
+important because the import scripts use the relative paths
+`data/economic_indicators.csv` and `data/tehran_properties.xlsx`.
 
-### Windows PowerShell / Command Prompt
+### Windows PowerShell
 
 ```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-```command prompt
+### Linux/WSL
+
+```bash
 cd backend
-venv\scripts\activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-Copy-Item .env.example .env
-
-Edit `.env` for the SQL Server installation. The default local configuration is:
-
-```dotenv
-APP_NAME=Housing AI API
-APP_VERSION=1.0.0
-DATABASE_SERVER=localhost
-DATABASE_NAME=HousingAI
-DATABASE_DRIVER=ODBC Driver 18 for SQL Server
-DATABASE_TRUSTED_CONNECTION=yes
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
 ```
+
+Edit `backend/.env` for the SQL Server installation. The settings are:
+
+| Variable | Meaning | Example |
+| --- | --- | --- |
+| `APP_NAME` | API title | `Housing AI API` |
+| `APP_VERSION` | API version | `1.0.0` |
+| `DATABASE_SERVER` | SQL Server host/instance | `localhost` |
+| `DATABASE_NAME` | Existing database name | `HousingAI` |
+| `DATABASE_DRIVER` | ODBC driver name | `ODBC Driver 18 for SQL Server` |
+| `DATABASE_TRUSTED_CONNECTION` | `yes` for integrated auth | `yes` |
+| `DATABASE_USERNAME` | SQL login when trusted auth is off | optional |
+| `DATABASE_PASSWORD` | SQL login password | optional |
+| `SQL_ECHO` | Print SQL statements (`true`/`false`) | `false` |
 
 For SQL authentication, set `DATABASE_TRUSTED_CONNECTION=no` and provide
-`DATABASE_USERNAME` and `DATABASE_PASSWORD`.
+`DATABASE_USERNAME` and `DATABASE_PASSWORD`. Keep `SQL_ECHO=false` for a quiet
+demo; set it to `true` only when SQL debugging is needed.
 
-Start the API from the `backend` directory:
+Start the API from the `backend/` directory:
 
-```powershell / command prompt
+```bash
 uvicorn app.main:app --reload
 ```
 
@@ -225,60 +246,71 @@ The API is available at `http://127.0.0.1:8000`. Interactive documentation is
 available at `http://127.0.0.1:8000/docs`; the health endpoint is
 `http://127.0.0.1:8000/health`.
 
-### macOS/Linux
+## Dataset import
 
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload
-```
-
-## Demo data and accounts
-
-Run these commands from `backend` after the database is available. For the
-owner seed, at least one project should already exist; projects can be created
-from the Admin Projects page.
-
-```bash
-python -m app.scripts.seed_project_owners
-python -m app.scripts.seed_demo_users_participants
-```
-
-To populate the market-estimation and economic-indicator tables:
+Run both commands from `backend/` after the database exists:
 
 ```bash
 python -m app.scripts.import_property_excel
 python -m app.scripts.import_economic_indicators
 ```
 
-The demo owner seed creates or updates these convenient credentials:
+`import_property_excel` reads `data/tehran_properties.xlsx` and
+`import_economic_indicators` reads `data/economic_indicators.csv`; neither
+command should be run from the repository root.
 
-| Actor | Username | Password |
-| --- | --- | --- |
-| Admin | `admin` | `admin` |
-| Member | `member` | `1234` |
-| Owner | `armin` | `1234` |
-| Owner | `sara` | `1234` |
-| Owner | `kaveh` | `1234` |
-| Owner | `neda` | `1234` |
+## Demo seed order and accounts
 
-These credentials are for the local academic demo only.
+Run the seed commands from `backend/` in exactly this order:
+
+| Order | Command | Depends on | Why this order matters |
+| --- | --- | --- | --- |
+| 1 | `python -m app.scripts.seed_demo_projects` | SQL Server database, property workbook, frontend neighborhood list | Creates the four named projects and verifies market neighborhoods. |
+| 2 | `python -m app.scripts.seed_project_owners` | The four project names | The owner seed looks projects up by name and assigns one owner per project. |
+| 3 | `python -m app.scripts.seed_demo_users_participants` | The four project names and owner-independent project rows | The member seed uses the names for its five-entry payment-behaviour mixes and assigns 20 members round-robin. |
+
+```bash
+cd backend
+python -m app.scripts.seed_demo_projects
+python -m app.scripts.seed_project_owners
+python -m app.scripts.seed_demo_users_participants
+```
+
+`seed_demo_projects` is idempotent: it reuses a project with a matching name,
+does not modify existing rows, and warns if an existing project has fewer than
+five units. The other two seeds are also designed for repeated demo setup.
+
+The seeded demo credentials are:
+
+| Actor | Username | Password | Project |
+| --- | --- | --- | --- |
+| Admin | `admin` | `admin` | Platform-wide demo access |
+| Member | `member` | `1234` | Member dashboard |
+| Owner | `armin` | `1234` | Niavaran Sapphire Residences |
+| Owner | `sara` | `1234` | Saadat Abad Negin Tower |
+| Owner | `kaveh` | `1234` | Mehr Housing Tower Phase 3 |
+| Owner | `neda` | `1234` | Shahrak Omid Apartment |
+
+These credentials are for the local academic demo only. Login requires the
+backend; the frontend does not fabricate an offline session.
 
 ## Frontend setup
 
-Open a second terminal in the `frontend` directory:
+Open a second terminal in the `frontend/` directory:
 
 ```bash
 cd frontend
 npm ci
 ```
 
-The frontend defaults to `http://127.0.0.1:8000`. To use another API URL,
-copy `.env.example` to `.env` and change `VITE_API_BASE_URL`.
+The frontend setting is:
+
+| Variable | Meaning | Example |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | FastAPI base URL | `http://127.0.0.1:8000` |
+
+The default is `http://127.0.0.1:8000`. To change it, copy
+`frontend/.env.example` to `frontend/.env` and edit `VITE_API_BASE_URL`.
 
 Start the development server:
 
@@ -295,7 +327,8 @@ npm run lint
 npm run build
 ```
 
-`npm run preview` serves the generated production build locally.
+Delete `frontend/dist/` after a build when returning to a clean development
+working tree. `npm run preview` serves the generated production build locally.
 
 ## Recommended demo scenario
 
@@ -314,16 +347,27 @@ npm run build
 
 ## Tests and evaluation
 
-Run backend business-logic tests from `backend`:
+Run backend tests from `backend/`:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-If pytest is installed, the same release gate can be run with:
+The same release gate can also be run with pytest:
 
 ```bash
 python -m pytest -q
+```
+
+The same two commands are the release gate in a clean virtual environment
+created from `backend/requirements.txt` only:
+
+```bash
+python -m venv .venv-clean
+source .venv-clean/bin/activate  # Windows: .venv-clean\Scripts\activate
+python -m pip install -r requirements.txt
+python -m pytest -q
+python -m unittest discover -s tests -v
 ```
 
 Run the reproducible ML evaluation script from `backend`:
@@ -363,9 +407,8 @@ Keep the backend running on port 8000 or set the matching value in
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-The frontend contains limited fallback demo data for presentation resilience,
-but persistent accounts, membership approval, payments and ML responses require
-the backend and database.
+The frontend has no offline login fallback. Accounts, membership approval,
+payments and ML responses require the backend and database.
 
 ## Scope and limitations
 

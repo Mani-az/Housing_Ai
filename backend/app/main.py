@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -34,17 +36,20 @@ from app.routes.project_owner_routes import router as project_owner_router
 from app.routes.membership_request_routes import router as membership_request_router
 from app.routes.valuation_routes import router as valuation_router
 
+
+logger = logging.getLogger(__name__)
+
 Base.metadata.create_all(bind=engine)
 
 # `create_all` does not add columns to an already-created demo database. Keep
 # the small MembershipRequest risk payload migration self-contained so an
 # earlier coursework database can still boot after the Member-panel update.
 try:
-    with engine.begin() as connection:
-        connection.execute(text("IF COL_LENGTH('membership_requests', 'risk_details') IS NULL ALTER TABLE membership_requests ADD risk_details NVARCHAR(MAX) NULL"))
+    if engine.dialect.name == "mssql":
+        with engine.begin() as connection:
+            connection.execute(text("IF COL_LENGTH('membership_requests', 'risk_details') IS NULL ALTER TABLE membership_requests ADD risk_details NVARCHAR(MAX) NULL"))
 except Exception:
-    # Fresh databases and non-SQL-Server test engines do not need this guard.
-    pass
+    logger.exception("Could not add membership_requests.risk_details during startup.")
 
 app = FastAPI(
     title=settings.APP_NAME,

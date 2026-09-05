@@ -28,7 +28,7 @@ DATABASE_URL = f"mssql+pyodbc:///?odbc_connect={quote_plus(connection_string)}"
 
 engine = create_engine(
     DATABASE_URL,
-    echo=True,
+    echo=settings.SQL_ECHO,
     pool_pre_ping=True,
 )
 

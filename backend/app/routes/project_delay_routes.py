@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,6 +12,8 @@ router = APIRouter(
     prefix="/project-delay",
     tags=["Project Delay Prediction"]
 )
+
+logger = logging.getLogger(__name__)
 
 
 @router.get(
@@ -28,8 +32,9 @@ def get_project_delay_prediction(
         raise HTTPException(status_code=404, detail=str(e))
     except FileNotFoundError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Project delay prediction failed for project_id=%s", project_id)
+        raise HTTPException(status_code=500, detail="Project delay prediction failed.")
 
 
 @router.get("/project/{project_id}/stream")

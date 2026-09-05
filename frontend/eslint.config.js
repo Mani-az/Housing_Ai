@@ -5,10 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  // These folders contain the retired pre-presentation UI and are not part of
-  // the application imported by src/App.jsx. Keep them out of the release
-  // lint gate until they are removed in the next cleanup pass.
-  globalIgnores(['dist', 'src/components/**', 'src/pages/**']),
+  globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

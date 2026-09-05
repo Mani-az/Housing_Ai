@@ -148,7 +148,7 @@ export default function Member({ currentAccount }) {
                     <div className="project-market-stats">
                       <span><Users size={15} /><b>{project.total_units || 0}</b> total units</span>
                       <span><Users size={15} /><b>{available}</b> available</span>
-                      <span><CreditCard size={15} /><b>{project.payment_plan || "Owner-defined"}</b></span>
+                      <span><CreditCard size={15} /><b>Owner-defined</b></span>
                     </div>
                     <div className="project-market-cost">Estimated cost <strong>{money(project.estimated_total_cost)}</strong></div>
                     <div className="project-market-actions">
@@ -197,7 +197,7 @@ export default function Member({ currentAccount }) {
               <div><span>Available units</span><strong>{selectedProject.available_units ?? "—"}</strong></div>
               <div><span>Estimated cost</span><strong>{money(selectedProject.estimated_total_cost)}</strong></div>
               <div><span>Status</span><strong>{selectedProject.status || "planning"}</strong></div>
-              <div><span>Payment plan</span><strong>{selectedProject.payment_plan || "Owner-defined"}</strong></div>
+              <div><span>Payment plan</span><strong>Owner-defined</strong></div>
               <div><span>Start date</span><strong>{selectedProject.start_date || "—"}</strong></div>
               <div><span>Expected end</span><strong>{selectedProject.expected_end_date || "—"}</strong></div>
             </div>

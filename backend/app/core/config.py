@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     DATABASE_USERNAME: Optional[str] = None
     DATABASE_PASSWORD: Optional[str] = None
     DATABASE_TRUSTED_CONNECTION: str = "yes"
+    SQL_ECHO: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
